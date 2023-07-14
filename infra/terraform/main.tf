@@ -30,13 +30,22 @@ resource "azurerm_storage_account" "storacc" {
   location                 = azurerm_resource_group.rg.location
   account_tier             = var.storage_account_tier
   account_replication_type = var.storage_account_replication
+}
 
-  network_rules {
-    default_action = "Deny"
+resource "azurerm_storage_container" "file_container" {
+  name = var.storage_container_name
+  storage_account_name = azurerm_storage_account.storacc.name
+  container_access_type = "blob"
+}
 
-    ip_rules                   = []
-    virtual_network_subnet_ids = []
-  }
+resource "azurerm_storage_blob" "file" {
+  access_tier = "Hot"
+  content_type = "text/plain"
+  name = "hello-world.txt"
+  source = "../resources/hello-world.txt"
+  storage_account_name = azurerm_storage_account.storacc.name
+  storage_container_name = azurerm_storage_container.file_container.name
+  type = "Block"
 }
 
 resource "azurerm_service_plan" "srvplan" {
