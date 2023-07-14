@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 3.12.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.1.0"
+    }
   }
 
   backend "azurerm" {}
@@ -18,6 +22,7 @@ provider "azurerm" {
   skip_provider_registration = true
 }
 
+data "azurerm_subscription" "current" {}
 
 resource "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
@@ -48,6 +53,15 @@ resource "azurerm_storage_blob" "file" {
   type = "Block"
 }
 
+resource "random_uuid" "role_assignment_blob_storage_id" {}
+
+resource "azurerm_role_assignment" "func_role_storacc" {
+  name = random_uuid.role_assignment_blob_storage_id.result
+  scope = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.storacc.name}"
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id = azurerm_linux_function_app.func.identity[0].principal_id
+}
+
 resource "azurerm_service_plan" "srvplan" {
   name                = var.service_plan_name
   resource_group_name = azurerm_resource_group.rg.name
@@ -67,5 +81,16 @@ resource "azurerm_linux_function_app" "func" {
 
   site_config {
     always_on = var.function_app_always_on
+    application_stack {
+      python_version = "3.8"
+    }
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  lifecycle {
+    ignore_changes = [ app_settings ]
   }
 }

@@ -13,11 +13,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         credential = DefaultAzureCredential()
 
         # Connect to the Azure Storage Account
-        storage_account_name = ""
+        storage_account_name = "testazureiacdevstoracc"
         blob_service_client = BlobServiceClient(account_url=f"https://{storage_account_name}.blob.core.windows.net", credential=credential)
 
         # Get the blob container and blob name
-        container_name = ""
+        container_name = "test-azure-iac-dev-container"
         blob_name = "hello-world.txt"
 
         # Retrieve the blob content
