@@ -38,28 +38,28 @@ resource "azurerm_storage_account" "storacc" {
 }
 
 resource "azurerm_storage_container" "file_container" {
-  name = var.storage_container_name
-  storage_account_name = azurerm_storage_account.storacc.name
+  name                  = var.storage_container_name
+  storage_account_name  = azurerm_storage_account.storacc.name
   container_access_type = "blob"
 }
 
 resource "azurerm_storage_blob" "file" {
-  access_tier = "Hot"
-  content_type = "text/plain"
-  name = "hello-world.txt"
-  source = "../resources/hello-world.txt"
-  storage_account_name = azurerm_storage_account.storacc.name
+  access_tier            = "Hot"
+  content_type           = "text/plain"
+  name                   = "hello-world.txt"
+  source                 = "../resources/hello-world.txt"
+  storage_account_name   = azurerm_storage_account.storacc.name
   storage_container_name = azurerm_storage_container.file_container.name
-  type = "Block"
+  type                   = "Block"
 }
 
 resource "random_uuid" "role_assignment_blob_storage_id" {}
 
 resource "azurerm_role_assignment" "func_role_storacc" {
-  name = random_uuid.role_assignment_blob_storage_id.result
-  scope = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.storacc.name}"
+  name                 = random_uuid.role_assignment_blob_storage_id.result
+  scope                = "/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${azurerm_resource_group.rg.name}/providers/Microsoft.Storage/storageAccounts/${azurerm_storage_account.storacc.name}"
   role_definition_name = "Storage Blob Data Reader"
-  principal_id = azurerm_linux_function_app.func.identity[0].principal_id
+  principal_id         = azurerm_linux_function_app.func.identity[0].principal_id
 }
 
 resource "azurerm_service_plan" "srvplan" {
@@ -91,6 +91,6 @@ resource "azurerm_linux_function_app" "func" {
   }
 
   lifecycle {
-    ignore_changes = [ app_settings ]
+    ignore_changes = [app_settings]
   }
 }

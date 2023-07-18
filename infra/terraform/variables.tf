@@ -33,6 +33,6 @@ variable "function_app_name" {
 }
 
 variable "function_app_always_on" {
-  type = bool
+  type    = bool
   default = false
 }
